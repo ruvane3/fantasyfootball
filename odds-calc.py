@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import norm
+import random
 
 standings = {
     "FANtasy": [9, 1, 1174],
@@ -46,35 +47,39 @@ for team, data in historicalPoints.items():
     meanStd[team] = [m, s]
 
 
-# Set game results by changing -1 -> 0 for team1 victory or 1 for team2 victory
+# Set game results
+# -1 = simulate game based on past results
+# -2 = simulate game based on provided odds for team1 (-2, .14 means 14% chance team one wins)
+# 0 = force team one wins
+# 1 = force team two wins
 schedule = {
     11: [
-        ["League is Rigged", "Run CMC", -1],
-        ["Eat Lobster!", "Kyle's Team", -1],
-        ["Daniel's Team", "Adam's Team", -1],
-        ["James's Team", "Christian's Team", -1],
-        ["Emily's Team", "FANtasy", -1],
+        ["League is Rigged", "Run CMC", -2, .14],
+        ["Eat Lobster!", "Kyle's Team", -2, .16],
+        ["Daniel's Team", "Adam's Team", 1, 0],
+        ["James's Team", "Christian's Team", -2, .54],
+        ["Emily's Team", "FANtasy", -2, .78],
     ],
     12: [
-        ["League is Rigged", "Adam's Team", -1],
-        ["Eat Lobster!", "Run CMC", -1],
-        ["Daniel's Team", "Christian's Team", -1],
-        ["James's Team", "FANtasy", -1],
-        ["Emily's Team", "Kyle's Team", -1],
+        ["League is Rigged", "Adam's Team", -1, 0],
+        ["Eat Lobster!", "Run CMC", -1, 0],
+        ["Daniel's Team", "Christian's Team", -1, 0],
+        ["James's Team", "FANtasy", -1, 0],
+        ["Emily's Team", "Kyle's Team", -1, 0],
     ],
     13: [
-        ["League is Rigged", "Christian's Team", -1],
-        ["Eat Lobster!", "Adam's Team", -1],
-        ["Run CMC", "Kyle's Team", -1],
-        ["Daniel's Team", "FANtasy", -1],
-        ["Emily's Team", "James's Team", -1],
+        ["League is Rigged", "Christian's Team", -1, 0],
+        ["Eat Lobster!", "Adam's Team", -1, 0],
+        ["Run CMC", "Kyle's Team", -1, 0],
+        ["Daniel's Team", "FANtasy", -1, 0],
+        ["Emily's Team", "James's Team", -1, 0],
     ],
     14: [
-        ["League is Rigged", "FANtasy", -1],
-        ["Eat Lobster!", "Christian's Team", -1],
-        ["Daniel's Team", "Emily's Team", -1],
-        ["James's Team", "Kyle's Team", -1],
-        ["Adam's Team", "Run CMC", -1],
+        ["League is Rigged", "FANtasy", -1, 0],
+        ["Eat Lobster!", "Christian's Team", -1, 0],
+        ["Daniel's Team", "Emily's Team", -1, 0],
+        ["James's Team", "Kyle's Team", -1, 0],
+        ["Adam's Team", "Run CMC", -1, 0],
     ],
 }
 
@@ -111,6 +116,11 @@ for i in range(numSimulations):
             team2Won = 0
             if forcewinner == -1:
                 team1Won = 1 if simTeam1Score > simTeam2Score else 0
+                team2Won = not team1Won
+            elif forcewinner == -2:
+                rndnum = random.uniform(0, 1)
+                team1odds = matchup[3]
+                team1Won = 1 if rndnum < team1odds else 0
                 team2Won = not team1Won
             else:
                 # use the forced game result
